@@ -235,6 +235,16 @@ const CanvasContent = () => {
     broadcastTopology("Initial Canvas Load", initialNodes, initialEdges);
   }, [broadcastTopology]);
 
+  useEffect(() => {
+    function onParentMessage(event: MessageEvent) {
+      if (event.data?.type !== "request_topology") return;
+      const topology = extractGraphTopology(nodesRef.current, edgesRef.current);
+      window.parent.postMessage({ type: "topology", topology }, "*");
+    }
+    window.addEventListener("message", onParentMessage);
+    return () => window.removeEventListener("message", onParentMessage);
+  }, []);
+
   const nodeTypes = useMemo(
     () => ({
       server: ServerNode,

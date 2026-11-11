@@ -9,6 +9,11 @@ interface UseSocketCanvasProps {
   onFlawDetected?: (nodeId: string) => void;
 }
 
+function resolveSessionId(): string {
+  if (typeof window === "undefined") return "canvas-demo";
+  return new URLSearchParams(window.location.search).get("sessionId") || "canvas-demo";
+}
+
 export function useSocketCanvas({
   serverUrl = "http://localhost:4000",
   onFlawDetected,
@@ -21,6 +26,7 @@ export function useSocketCanvas({
   useEffect(() => {
     // Initialise WebSocket connection
     const socket = io(serverUrl, {
+      query: { sessionId: resolveSessionId() },
       transports: ["websocket", "polling"],
       reconnectionAttempts: 10,
       reconnectionDelay: 2000,
